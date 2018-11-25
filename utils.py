@@ -47,11 +47,11 @@ def imageResize(image):
     
 def image_rotate(restored_image):
     r = restored_image.shape[0]%2
-    l = restored_image.shape[0]-r
+    l = restored_image.shape[0]
     replaced_image = np.ones((l, l))
     k = restored_image.shape[0]/2
-    replaced_image[ :k,  :k] = restored_image[k:l, k:l]
-    replaced_image[ :k, k:l] = restored_image[k:l,  :k]
-    replaced_image[k:l,  :k] = restored_image[ :k, k:l]
-    replaced_image[k:l, k:l] = restored_image[ :k,  :k]
+    replaced_image[ :k,  :k] = restored_image[k+r:l, k+r:l]
+    replaced_image[ :k, k:l] = restored_image[k+r:l,  :k+r]
+    replaced_image[k:l,  :k] = restored_image[ :k+r, k+r:l]
+    replaced_image[k:l, k:l] = restored_image[ :k+r,  :k+r]
     return replaced_image

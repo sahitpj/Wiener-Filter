@@ -16,44 +16,49 @@ def pad_with(vector, pad_width, iaxis, kwargs):
     vector[-pad_width[1]:] = pad_value
     return vector
 
-def weiner_filter(output_image, impulse_response, stddev, estimation, gamma):
-    output_dtft = fftpack.fft2(output_image)
-    padded_impulse = np.pad(impulse_response, (output_image.shape[0]-impulse_response.shape[0])/2, pad_with, padder=0 )
-    Hf = fftpack.fft2(padded_impulse)
-    Pyf = np.square(abs(output_dtft))/(output_image.shape[0]**2)
-    Pyf_log = np.log10(Pyf)
-    assert(Pyf.shape == Hf.shape)
+class weiner_filter(object):
+    def __init__(self, output_image):
+        self.output_image = output_image
+        self.input_image = None
 
-    if estimation == 'k':
-        Gf = np.divide(np.conjugate(Hf), (np.square(abs(Hf))+gamma))
-        F_r = np.multiply(Gf, output_dtft)
-        return fftpack.ifft2(F_r)
-    elif estimation == 'FBDB':
-        threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
-        Pyf_max = np.multiply(Pyf, (Pyf_log<=threshold))
-        Pyf_min = np.multiply(Pyf, (Pyf_log>threshold))
-        Pxf = Pyf_min
-        Pnf = Pyf_max
-        Hf = np.divide(Pxf, Pyf)
-        Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
-        F_r = np.multiply(Gf, output_dtft)
-        return fftpack.ifft2(F_r)
-    elif estimation == 'modified-FDBD':
-        threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
-        Pnf = np.multiply(Pyf, (Pyf_log<=threshold)) + np.multiply((Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4, (Pyf_log>threshold))
-        Pxf = np.multiply(Pyf, (Pyf_log>threshold))
-        Hf = np.divide(Pxf, Pyf)
-        Gf = np.divde(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
-        F_r = np.multiply(Gf, output_dtft)
-        return fftpack.ifft2(F_r)
-    elif estimation == 'AHFC':
-        Pnf = np.multiply(np.ones((Pyf.shape[0], Pxf.shape[1])), (Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4)
-        threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
-        Pxf = np.multiply(Pyf, (Pyf_log>threshold))
-        Hf = np.divide(Pxf, Pyf)
-        Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
-        F_r = np.multiply(Gf, output_dtft)
-        return fftpack.ifft2(F_r)
+    def filter(self, impulse_response, stddev, estimation, gamma):
+        output_dtft = fftpack.fft2(self.output_image)
+        padded_impulse = np.pad(impulse_response, (self.output_image.shape[0]-impulse_response.shape[0])/2, pad_with, padder=0 )
+        Hf = fftpack.fft2(padded_impulse)
+        Pyf = np.square(abs(output_dtft))/(self.output_image.shape[0]**2)
+        Pyf_log = np.log10(Pyf)
+        assert(Pyf.shape == Hf.shape)
+
+        if estimation == 'k':
+            Gf = np.divide(np.conjugate(Hf), (np.square(abs(Hf))+gamma))
+            F_r = np.multiply(Gf, output_dtft)
+            return fftpack.ifft2(F_r)
+        elif estimation == 'FBDB':
+            threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
+            Pyf_max = np.multiply(Pyf, (Pyf_log<=threshold))
+            Pyf_min = np.multiply(Pyf, (Pyf_log>threshold))
+            Pxf = Pyf_min
+            Pnf = Pyf_max
+            Hf = np.divide(Pxf, Pyf)
+            Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            F_r = np.multiply(Gf, output_dtft)
+            return fftpack.ifft2(F_r)
+        elif estimation == 'modified-FDBD':
+            threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
+            Pnf = np.multiply(Pyf, (Pyf_log<=threshold)) + np.multiply((Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4, (Pyf_log>threshold))
+            Pxf = np.multiply(Pyf, (Pyf_log>threshold))
+            Hf = np.divide(Pxf, Pyf)
+            Gf = np.divde(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            F_r = np.multiply(Gf, output_dtft)
+            return fftpack.ifft2(F_r)
+        elif estimation == 'AHFC':
+            Pnf = np.multiply(np.ones((Pyf.shape[0], Pxf.shape[1])), (Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4)
+            threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
+            Pxf = np.multiply(Pyf, (Pyf_log>threshold))
+            Hf = np.divide(Pxf, Pyf)
+            Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            F_r = np.multiply(Gf, output_dtft)
+            return fftpack.ifft2(F_r)
 
 
 
@@ -61,16 +66,18 @@ def weiner_filter(output_image, impulse_response, stddev, estimation, gamma):
 
 
 
-def metric(restored_image, input_image, corrupted_image):
-    '''
-    A metric we are using for the following is the signal to noise ratio which can be defined as 
+    def metric(self, restored_image, input_image):
+        '''
+        A metric we are using for the following is the signal to noise ratio which can be defined as 
 
-        = Spectral Density of Signal / Spectral Density of Noise
+            = Spectral Density of Signal / Spectral Density of Noise
 
-    We consider the SNR improvement which is the SNR of the input image diveded by the SNR of the restored image, which simplies to
+        We consider the SNR improvement which is the SNR of the input image diveded by the SNR of the restored image, which simplies to
 
-        = Spectral Density of input noise / Spectral Density of Output noise
-    '''
-    a = (np.sum(np.square(abs(fftpack.fft2(corrupted_image-input_image))))/(input_image.shape[0]**2))
-    b = (np.sum(np.square(abs(fftpack.fft2(corrupted_image-restored_image))))/(input_image.shape[0]**2))
-    return 10*np.log10(a/b)
+            = Spectral Density of input noise / Spectral Density of Output noise
+        '''
+        a = (np.sum(np.square(abs(fftpack.fft2(self.output_image-input_image))))/(input_image.shape[0]**2))
+        b = (np.sum(np.square(abs(fftpack.fft2(self.output_image-restored_image))))/(input_image.shape[0]**2))
+        return 10*np.log10(a/b)
+
+
