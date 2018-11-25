@@ -1,0 +1,8 @@
+#system files
+.DS_Store
+
+#dataset
+dataset/
+
+#python executables
+*.pyc
