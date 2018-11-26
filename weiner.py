@@ -10,12 +10,22 @@ inverse fourirer tranform.
 import numpy as np
 from scipy import fftpack
 
+def unpad(image, unpad_width):
+    return image[unpad_width:-unpad_width, unpad_width:-unpad_width]
+
 def pad_with(vector, pad_width, iaxis, kwargs):
     pad_value = kwargs.get('padder', 10)
     vector[:pad_width[0]] = pad_value
     vector[-pad_width[1]:] = pad_value
     return vector
 
+def Find_k(input_image, noise):
+    input_dtft = fftpack.fft2(input_image)
+    Pxf = np.square(abs(input_dtft))/(input_image.shape[0]**2)
+    noise_dtft = fftpack.fft2(noise)
+    Pnf = np.square(abs(noise_dtft))/(noise.shape[0]**2)
+    return Pxf/Pnf
+    
 class weiner_filter(object):
     def __init__(self, output_image):
         self.output_image = output_image
@@ -39,24 +49,30 @@ class weiner_filter(object):
             Pyf_min = np.multiply(Pyf, (Pyf_log>threshold))
             Pxf = Pyf_min
             Pnf = Pyf_max
+            print Pnf
             Hf = np.divide(Pxf, Pyf)
-            Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            a = np.multiply(np.conjugate(Hf), Pxf)
+            b = np.multiply(np.square(abs(Hf)), Pxf)+Pnf
+            Gf = np.divide(a, b)
             F_r = np.multiply(Gf, output_dtft)
             return fftpack.ifft2(F_r)
-        elif estimation == 'modified-FDBD':
+        elif estimation == 'modified-FBDB':
             threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
-            Pnf = np.multiply(Pyf, (Pyf_log<=threshold)) + np.multiply((Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4, (Pyf_log>threshold))
+            Pnf = np.multiply(Pyf, (Pyf_log<=threshold)) + np.multiply((Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/3, (Pyf_log>threshold))
             Pxf = np.multiply(Pyf, (Pyf_log>threshold))
             Hf = np.divide(Pxf, Pyf)
-            Gf = np.divde(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            a = np.multiply(np.conjugate(Hf), Pxf)
+            b = np.multiply(np.square(abs(Hf)), Pxf)+Pnf
+            Gf = np.divide(a, b)
             F_r = np.multiply(Gf, output_dtft)
             return fftpack.ifft2(F_r)
         elif estimation == 'AHFC':
-            Pnf = np.multiply(np.ones((Pyf.shape[0], Pxf.shape[1])), (Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4)
+            Pnf = np.multiply(np.ones((Pyf.shape[0], Pyf.shape[1])), (Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4)
             threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
+            print Pyf
             Pxf = np.multiply(Pyf, (Pyf_log>threshold))
             Hf = np.divide(Pxf, Pyf)
-            Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf), Pxf))+Pnf)
+            Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf)), Pxf)+Pnf)
             F_r = np.multiply(Gf, output_dtft)
             return fftpack.ifft2(F_r)
 
@@ -68,7 +84,7 @@ class weiner_filter(object):
 
     def metric(self, restored_image, input_image):
         '''
-        A metric we are using for the following is the signal to noise ratio which can be defined as 
+        A metric we are using for the following is the signal to noise ratio (SNR) which can be defined as 
 
             = Spectral Density of Signal / Spectral Density of Noise
 

@@ -1,5 +1,5 @@
 import numpy as np
-from weiner import weiner_filter,  pad_with
+from weiner import weiner_filter,  pad_with, unpad
 import cv2
 
 def Gaussian(size, stddev):
@@ -58,15 +58,36 @@ def image_rotate(restored_image):
     return replaced_image
 
 
-def process(imagepath, k):
+def process(imagepath, k_value):
     im = imageResize(cv2.imread(imagepath, 0))
     gaussian_kernel = Gaussian(5, 1)
-    p = convolution2d(im, gaussian_kernel, 0)
-    gaussian_blur = np.pad(p, (im.shape[0]-p.shape[0])/2, pad_with, padder=1)
+    gaussian_blur = convolution2d(im, gaussian_kernel, 0)
+    im = unpad(im, 5)
     noise = gaussianNoise(im, 20)
     assert(gaussian_blur.shape == noise.shape)
     noisy_image = gaussian_blur + noise
+    k = np.ones((im.shape[0], im.shape[0]))*k_value
     F1 = weiner_filter(noisy_image)
-    r = np.real(F1.filter(gaussian_kernel, 'k', k))
-    restored_image = (image_rotate(r))
+    method = 'k'
+    r = np.real(F1.filter(gaussian_kernel, method, k))
+    restored_image = ImageScale(imageRemap(method, r))
     return F1.metric(restored_image, im)
+
+def imageRemap(method, r):
+    if method == 'k':
+        restored_image = (image_rotate(r))
+    elif method == 'FBDB':
+        restored_image = r
+    elif method == 'modified-FBDB':
+        restored_image = r 
+    elif method == 'AHFC':
+        restored_image = r 
+    return restored_image
+
+
+
+def ImageScale(image):
+    ma = np.amax(image)
+    mi = np.amin(image)
+    l = (image-mi)/(ma-mi)
+    return l
