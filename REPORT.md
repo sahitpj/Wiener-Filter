@@ -83,18 +83,28 @@ def optimize_2(kernel_size, imagepath_list):
 
 The short coming for this, is that we are using input image and noise data. However by using a large number of images, this value of k can be genralised for all images, and can be used as a general k.
 
+## Inferences
 
-Thus comparing our optimization techniques we get the following graph 
+<p float="left" align="center">
+  <img src="trailset/var_blur.png" width="400" />
+  <img src="trailset/var_noise.png" width="400" />
+</p>
 
+The following two graphs are the performances of our filter by varying the variance of the blur and the noise respectively. The filter performs decently well, on good levels of noise and blur
 
-![Opt Graph](trailset/opt_graph.png)
+<br><br><br>
 
+<p align="center">
+<img src="trailset/opt_graph.png" width="600" />
+</p>
+
+The following is a graph comparing our optimization techniques we get the following graph 
 
 The Blue graph represents Optimization-1 and the Green Graph Optimization-2
 
 The first 2 images are images similar to the ones we have used to train for k values, while the last 3 are different images.
 
-## Conclusion
+## Conclusions
 
 Although we can observe that Opt-1 is greater than Opt-2, we can see that Opt-2 is not far behind and can be applied to all images. Thus the need to randomly find the value of k, is not necessary which may take time and more computational power when dealing with large images and datasets.
 

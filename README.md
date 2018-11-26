@@ -24,7 +24,7 @@ Our model works on two optimization methods for k.
 
 #### Example - 1
 
-<p float="left">
+<p float="left" align="center">
   <img src="trailset/org1.png" width="250" title="Original"/>
   <img src="trailset/blur1.png" width="250" />
   <img src="trailset/rest1.png" width="250" />
@@ -32,15 +32,17 @@ Our model works on two optimization methods for k.
 
 #### Example - 2
 
-<p float="left">
+<p float="left" align="center">
   <img src="trailset/org2.png" width="250" title="Original"/>
   <img src="trailset/blur2.png" width="250" />
   <img src="trailset/rest2.png" width="250" />
 </p>
 
+<br><br>
 
-
-![Opt Graph](trailset/opt_graph.png)
+<p align="center">
+<img src="trailset/opt_graph.png" width="700" />
+</p>
 
 WE thus compare our metric scores of our optimization techniques, over a set of images. The blue graph is Opt-1 and the green graph is Opt-2. More details about the optimization techniques in the [report](REPORT.md)
 

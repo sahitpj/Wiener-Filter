@@ -1,6 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
-from utils import Gaussian, convolution2d, gaussianNoise, imageResize, image_rotate, imageRemap, ImageScale, process, process_2
+from utils import Gaussian, convolution2d, gaussianNoise, imageResize, image_rotate, imageRemap, ImageScale, process, process_2, condition_process
 from weiner import weiner_filter,  pad_with, unpad
 import numpy as np
 from optimize import optimize_1, optimize_2
@@ -28,9 +28,6 @@ score = F1.metric(restored_image, im)
 print 'restoration score -', score
 
 
-# cv2.imshow('m1', restored_image)
-# cv2.waitKey(0)
-# optimize(1, "trailset/image_test.jpg")
 l = []
 for i in xrange(15):
     l.append('dataset/beaver/image_00'+str(i+10)+'.jpg')
@@ -70,4 +67,14 @@ for i in xrange(1,6):
     x_.append(i-0.2)
 ax.bar(x_, rest_scores_a,width=0.2,color='b',align='center')
 ax.bar(x, rest_scores_b,width=0.2,color='g',align='center')
+plt.show()
+
+print 'varying noise blur'
+blur_vals = np.linspace(1, 30, num=60)
+r = []
+for i in xrange(60):
+    g = condition_process(imagepaths[2], k, blur_vals[i], 1)
+    r.append(g)
+
+plt.plot(range(1,61), r)
 plt.show()

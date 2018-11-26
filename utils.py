@@ -88,6 +88,21 @@ def process_2(imagepath, k_value): #k value is 101x101
     restored_image = ImageScale(imageRemap(method, r))
     return F1.metric(restored_image, im) 
 
+def condition_process(imagepath, k_value, noise_var, blur_var):
+    im = imageResize(cv2.imread(imagepath, 0))[:111, :111]
+    gaussian_kernel = Gaussian(5, blur_var)
+    gaussian_blur = convolution2d(im, gaussian_kernel, 0)
+    im = unpad(im, 5)
+    noise = gaussianNoise(im, noise_var)
+    assert(gaussian_blur.shape == noise.shape)
+    noisy_image = gaussian_blur + noise
+    k = np.ones((im.shape[0], im.shape[0]))*k_value
+    F1 = weiner_filter(noisy_image)
+    method = 'k'
+    r = np.real(F1.filter(gaussian_kernel, method, k))
+    restored_image = ImageScale(imageRemap(method, r))
+    return F1.metric(restored_image, im)
+
 
 def imageRemap(method, r):
     if method == 'k':
