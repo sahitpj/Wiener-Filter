@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 from utils import Gaussian, convolution2d, gaussianNoise, imageResize, image_rotate
 from weiner import weiner_filter,  pad_with
 import numpy as np
+from optimize import optimize
 
-im = imageResize(cv2.imread("dataset/dolphin/image_0002.jpg", 0))
+im = imageResize(cv2.imread("trailset/image_test.jpg", 0))
 
 
 gaussian_kernel = Gaussian(5, 1)
@@ -14,12 +15,13 @@ noise = gaussianNoise(im, 20)
 assert(gaussian_blur.shape == noise.shape)
 noisy_image = gaussian_blur + noise
 F1 = weiner_filter(noisy_image)
-r = np.real(F1.filter(gaussian_kernel, 1, 'k', 1))
+r = np.real(F1.filter(gaussian_kernel, 'k', 1))
 restored_image = (image_rotate(r))
 
 
 score = F1.metric(restored_image, im)
 print 'restoration score -', score
 
-cv2.imshow('m1', restored_image)
-cv2.waitKey(0)
+# cv2.imshow('m1', restored_image)
+# cv2.waitKey(0)
+optimize(1, "trailset/image_test.jpg")

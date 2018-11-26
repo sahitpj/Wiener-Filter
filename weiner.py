@@ -21,7 +21,7 @@ class weiner_filter(object):
         self.output_image = output_image
         self.input_image = None
 
-    def filter(self, impulse_response, stddev, estimation, gamma):
+    def filter(self, impulse_response, estimation, gamma):
         output_dtft = fftpack.fft2(self.output_image)
         padded_impulse = np.pad(impulse_response, (self.output_image.shape[0]-impulse_response.shape[0])/2, pad_with, padder=0 )
         Hf = fftpack.fft2(padded_impulse)

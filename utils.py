@@ -1,5 +1,6 @@
 import numpy as np
-
+from weiner import weiner_filter,  pad_with
+import cv2
 
 def Gaussian(size, stddev):
     s, k = stddev, size #generates gaussian of size 2k+1 x 2k+1
@@ -55,3 +56,17 @@ def image_rotate(restored_image):
     replaced_image[k:l,  :k] = restored_image[ :k+r, k+r:l]
     replaced_image[k:l, k:l] = restored_image[ :k+r,  :k+r]
     return replaced_image
+
+
+def process(imagepath, k):
+    im = imageResize(cv2.imread(imagepath, 0))
+    gaussian_kernel = Gaussian(5, 1)
+    p = convolution2d(im, gaussian_kernel, 0)
+    gaussian_blur = np.pad(p, (im.shape[0]-p.shape[0])/2, pad_with, padder=1)
+    noise = gaussianNoise(im, 20)
+    assert(gaussian_blur.shape == noise.shape)
+    noisy_image = gaussian_blur + noise
+    F1 = weiner_filter(noisy_image)
+    r = np.real(F1.filter(gaussian_kernel, 'k', k))
+    restored_image = (image_rotate(r))
+    return F1.metric(restored_image, im)
