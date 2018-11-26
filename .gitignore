@@ -6,3 +6,6 @@ dataset/
 
 #python executables
 *.pyc
+
+#pdfs
+*.pdf

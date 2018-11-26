@@ -62,3 +62,6 @@ pip install -r requirements.txt
 # Run the app
 python main.py <path to image>
 ```
+
+
+dataset credits - http://www.vision.caltech.edu/Image_Datasets/Caltech101/Caltech101.html
