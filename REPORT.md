@@ -45,3 +45,17 @@ In the second optimization, given our training set, we find the value optimum va
 We then average this value and take this as our general
 
 The short coming for this, is that we are using input image and noise data. Although by using a large number of images, this value of k can be genralised for all images, and can be used as a general k.
+
+
+Thus comparing our optimization techniques we get the following graph 
+
+
+![Opt Graph](trailset/opt_graph.png)
+
+
+The Blue graph represents Optimization-1 and the Green Graph Optimization-2
+
+
+The first 2 images are images similar to the ones we have used to train for k values, while the last 3 are different images.
+
+Although we can observe that Opt-1 is greater than Opt-2, we can see that Opt-2 is not far behind and can be applied to all images. Thus the need to randomly find the value of k, is not necessary which may take time and more computational power when dealing with large images and datasets

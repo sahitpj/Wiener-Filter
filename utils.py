@@ -73,6 +73,22 @@ def process(imagepath, k_value):
     restored_image = ImageScale(imageRemap(method, r))
     return F1.metric(restored_image, im)
 
+def process_2(imagepath, k_value): #k value is 101x101
+    im = cv2.imread(imagepath, 0)[:111, :111]
+    gaussian_kernel = Gaussian(5, 1)
+    gaussian_blur = convolution2d(im, gaussian_kernel, 0)
+    im = unpad(im, 5) #im is size 101x101
+    noise = gaussianNoise(im, 20) 
+    assert(gaussian_blur.shape == noise.shape)
+    noisy_image = gaussian_blur + noise
+    k = k_value #k is size 101x101 from optmize
+    F1 = weiner_filter(noisy_image)
+    method = 'k'
+    r = np.real(F1.filter(gaussian_kernel, method, k))
+    restored_image = ImageScale(imageRemap(method, r))
+    return F1.metric(restored_image, im) 
+
+
 def imageRemap(method, r):
     if method == 'k':
         restored_image = (image_rotate(r))
@@ -91,3 +107,5 @@ def ImageScale(image):
     mi = np.amin(image)
     l = (image-mi)/(ma-mi)
     return l
+
+

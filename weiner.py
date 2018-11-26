@@ -25,7 +25,7 @@ def Find_k(input_image, noise):
     noise_dtft = fftpack.fft2(noise)
     Pnf = np.square(abs(noise_dtft))/(noise.shape[0]**2)
     return Pxf/Pnf
-    
+
 class weiner_filter(object):
     def __init__(self, output_image):
         self.output_image = output_image
@@ -49,7 +49,6 @@ class weiner_filter(object):
             Pyf_min = np.multiply(Pyf, (Pyf_log>threshold))
             Pxf = Pyf_min
             Pnf = Pyf_max
-            print Pnf
             Hf = np.divide(Pxf, Pyf)
             a = np.multiply(np.conjugate(Hf), Pxf)
             b = np.multiply(np.square(abs(Hf)), Pxf)+Pnf
@@ -69,7 +68,6 @@ class weiner_filter(object):
         elif estimation == 'AHFC':
             Pnf = np.multiply(np.ones((Pyf.shape[0], Pyf.shape[1])), (Pyf[0][0]+Pyf[0][-1]+Pyf[-1][0]+Pyf[-1][-1])/4)
             threshold = np.amin(Pyf_log) + (np.amax(Pyf_log)-np.amin(Pyf_log))*0.32 
-            print Pyf
             Pxf = np.multiply(Pyf, (Pyf_log>threshold))
             Hf = np.divide(Pxf, Pyf)
             Gf = np.divide(np.multiply(np.conjugate(Hf), Pxf), np.multiply(np.square(abs(Hf)), Pxf)+Pnf)

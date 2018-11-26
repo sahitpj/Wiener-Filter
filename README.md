@@ -18,8 +18,9 @@ where
 - F is the Power Spectral Density of the Noise function
 - |N|^2/|F|^2 = k
 
-However given we don't we have the input image and the noise function, we estimate the value. The following model runs the wiener filter on a dataset of images and given the SNR (Signal Noise Ratio) Metric, we determine the best value of k.
+However given we don't we have the input image and the noise function. We thus estimate the value of k and apply that to our weiner filter.
 
+Our model works on two optimization methods for k.
 
 #### Example - 1
 
@@ -37,6 +38,11 @@ However given we don't we have the input image and the noise function, we estima
   <img src="trailset/rest2.png" width="250" />
 </p>
 
+
+
+![Opt Graph](trailset/opt_graph.png)
+
+WE thus compare our metric scores of our optimization techniques, over a set of images. The blue graph is Opt-1 and the green graph is Opt-2. More details about the optimization techniques in the [report](REPORT.md)
 
 ## Development and Running
 
